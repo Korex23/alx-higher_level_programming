@@ -1,40 +1,46 @@
 #!/usr/bin/python3
-"""
-reads stdin line by line and computes metrics
-"""
-import sys
+"""A script that reads stdin line by line and computes metrics."""
 
-file_size = 0
-status_tally = {"200": 0, "301": 0, "400": 0, "401": 0,
-                "403": 0, "404": 0, "405": 0, "500": 0}
-i = 0
-try:
-    for line in sys.stdin:
-        tokens = line.split()
-        if len(tokens) >= 2:
-            a = i
-            if tokens[-2] in status_tally:
-                status_tally[tokens[-2]] += 1
-                i += 1
+
+def print_stats(file_size, stats):
+    """Prints total file size and valid codes count."""
+
+    print("File size: {}".format(file_size))
+    for code in sorted(stats):
+        print("{}: {}".format(code, stats[code]))
+
+
+if __name__ == "__main__":
+    import sys
+
+    file_size = 0
+    possible_codes = ["200", "301", "400", "401", "403", "404", "405", "500"]
+    stats = {}
+    count = 0
+
+    try:
+        for line in sys.stdin:
+            count += 1
+            line = line.split()
+
             try:
-                file_size += int(tokens[-1])
-                if a == i:
-                    i += 1
-            except FileNotFoundError:
-                if a == i:
-                    continue
-        if i % 10 == 0:
-            print("File size: {:d}".format(file_size))
-            for key, value in sorted(status_tally.items()):
-                if value:
-                    print("{:s}: {:d}".format(key, value))
-    print("File size: {:d}".format(file_size))
-    for key, value in sorted(status_tally.items()):
-        if value:
-            print("{:s}: {:d}".format(key, value))
+                file_size += int(line[-1])
+            except (IndexError, ValueError):
+                pass
 
-except KeyboardInterrupt:
-    print("File size: {:d}".format(file_size))
-    for key, value in sorted(status_tally.items()):
-        if value:
-            print("{:s}: {:d}".format(key, value))
+            try:
+                if line[-2] in possible_codes:
+                    if stats.get(line[-2], -1) == -1:
+                        stats[line[-2]] = 1
+                    else:
+                        stats[line[-2]] += 1
+            except IndexError:
+                pass
+
+            if count % 10 == 0:
+                print_stats(file_size, stats)
+
+        print_stats(file_size, stats)
+    except KeyboardInterrupt:
+        print_stats(file_size, stats)
+        raise

@@ -1,20 +1,24 @@
 #!/usr/bin/python3
-"""
-Contains the "append after" function
-"""
+"""Defines a append_after function."""
 
 
 def append_after(filename="", search_string="", new_string=""):
-    """appends "new_string" after a line containing
-    "search_string" in "filename" """
-    with open(filename, 'r', encoding='utf-8') as f:
-        line_list = []
-        while True:
-            line = f.readline()
-            if line == "":
-                break
-            line_list.append(line)
-            if search_string in line:
-                line_list.append(new_string)
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.writelines(line_list)
+    """Inserts a line of text to a file, after each line
+        containing a specific string.
+
+    Args:
+        filename (str): The name of the file.
+        search_string (str): The text to search for within the file.
+        new_string (str): The text to insert if `search_string` is found.
+    """
+    with open(filename, encoding="utf-8") as fp:
+        lines = fp.readlines()
+
+    updated_lines = []
+    for line in lines:
+        updated_lines.append(line)
+        if search_string in line:
+            updated_lines.append(new_string)
+
+    with open(filename, mode="w", encoding="utf-8") as fp:
+        fp.writelines(updated_lines)
